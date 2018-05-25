@@ -1,7 +1,7 @@
 ansible-role-user
 =================
 
-[![Build Status](https://travis-ci.org/kevincoakley/ansible-role-user.svg?branch=master)](https://travis-ci.org/kevincoakley/ansible-role-user)
+[![Build Status](https://travis-ci.org/cjsteel/ansible-role-users.svg?branch=master)](https://travis-ci.org/cjsteel/ansible-role-users)
 
 Manage users for CentOS 7, Ubuntu 14.04 and Ubuntu 16.04
 
@@ -52,3 +52,8 @@ Author Information
 ------------------
 
 Kevin Coakley (https://github.com/kevincoakley)
+
+Modifications
+-------------
+
+Christopher Steel (https://github.com/cjsteel)
