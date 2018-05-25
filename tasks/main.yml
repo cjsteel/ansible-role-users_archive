@@ -1,48 +1,81 @@
 ---
-- name: Create Users
-  user:
-    append: "{{ item.append | default(omit) }}"
-    comment: "{{ item.comment | default(omit) }}"
-    createhome: "{{ item.createhome | default(omit) }}"
-    expires: "{{ item.expires | default(omit) }}"
-    force: "{{ item.force | default(omit) }}"
-    group: "{{ item.group | default(omit) }}"
-    groups: "{{ item.groups | default(omit) }}"
-    home: "{{ item.home | default(omit) }}"
-    name: "{{ item.name }}"
-    password: "{{ item.password | default(omit) }}"
-    shell: "{{ item.shell | default(omit) }}"
-    state: "{{ item.state | default(user_state) }}"
-    system: "{{ item.system | default(user_system) }}"
-    uid: "{{ item.uid | default(omit) }}"
-    update_password: "{{ item.update_password | default(omit) }}"
-  with_items: "{{ user_list }}"
 
-- name: Added User ssh keys
-  authorized_key:
-    user: "{{ item.name }}"
-    key: "{{ item.ssh_key }}"
-  when: item.ssh_key is defined
-  with_items: "{{ user_list }}"
-
-- name: Install sudo
+- name: "Ensure for apt packages required by Ansible group module"
   package:
-    name: sudo
+    name: libuser
     state: present
 
-- name: Add User sudoers files
+- name: "Ensure anu new groups are created"
+  group:
+    gid   : "{{ item.uid | default(omit) }}"
+    name  : "{{ item.name }}"
+    state : "{{ item.state | default(omit) }}"
+    system: "{{ item.system | default(omit) }}"
+  with_items: "{{ user_groups_add }}"
+
+- name: Create Users
+  user:
+    append         : "{{ item.append | default(omit) }}"
+    comment        : "{{ item.comment | default(omit) }}"
+    createhome     : "{{ item.createhome | default(omit) }}"
+    expires        : "{{ item.expires | default(omit) }}"
+    force          : "{{ item.force | default(omit) }}"
+    group          : "{{ item.group | default(omit) }}"
+    groups         : "{{ item.groups | default(omit) }}"
+    home           : "{{ item.home | default(omit) }}"
+    name           : "{{ item.name }}"
+    password       : "{{ item.password | default(omit) }}"
+    shell          : "{{ item.shell | default(omit) }}"
+    state          : "{{ item.state | default(omit) }}"
+    system         : "{{ item.system }}"
+    uid            : "{{ item.uid | default(omit) }}"
+    update_password: "{{ item.update_password | default(omit) }}"
+  with_items: "{{ user_users_add }}"
+
+#- name: "add authorized key(s)" 
+#  authorized_key:
+#    user: "{{ item.name }}"
+#    key: "{{ item.ssh_key }}"
+#  when: item.ssh_key is defined
+#  with_items: "{{ user_users_add }}"
+
+- name: Ensure for sudo
+  package:
+    name    : sudo
+    state   : present
+
+- name: Add users sudo permissions to sudoers.d user file
   copy:
     content: "{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
-    dest: "/etc/sudoers.d/{{ item.name }}"
-    owner: root
-    group: root
+    dest   : "/etc/sudoers.d/{{ item.name }}"
+    owner  : root
+    group  : root
   when: item.sudoers is defined and item.sudoers == true
-  with_items: "{{ user_list }}"
+  with_items: "{{ user_users_add }}"
 
 # If sudoers is not defined or equals false then make sure the sudoers file is absent
-- name: Remove User sudoers file
+
+- name: Remove users sudoers.d file
   file:
-    path: "/etc/sudoers.d/{{ item.name }}"
+    path : "/etc/sudoers.d/{{ item.name }}"
     state: absent
   when: item.sudoers is undefined or item.sudoers == false
-  with_items: "{{ user_list }}"
+  with_items: "{{ user_users_add }}"
+
+# Remove users
+
+- name: Ensure that users listed in user_users_removed are not present on the system
+  user:
+    name  : '{{ item.name }}'
+    state : absent
+    remove: yes
+#  no_log: true
+  with_items: "{{ user_users_removed }}"
+
+- name: "Ensure any groups in the user_groups_removed list are not present on the system"
+  group:
+    name  : "{{ item.name }}"
+    state : absent
+#  no_log: true
+  with_items: '{{ user_groups_removed }}'
+

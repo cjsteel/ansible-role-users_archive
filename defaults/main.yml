@@ -1,3 +1,92 @@
 ---
+# ensure for groupadd, groupdel and groupmod on target system
+
+user_required_apt_packages:
+  - libuser
+
+# Run:
+#
+#   cat /etc/login.defs | grep GID
+#
+# for target systems configured GID ranges
+# 
+# Regular groups:
+#
+# GID_MIN
+# GID_MAX
+#
+# System groups:
+#
+# SYS_GID_MIN
+# SYS_GID_MAX
+
+
+user_groups_add:
+
+  - name  : admin # required
+    gid   : 115   # default omit
+    state : present
+#    system: no
+
+  - name  : krups # required
+    state : present
+
+user_groups_removed:
+
+  - name  : krups # required
+    state : absent
+
+
 user_state: present
 user_system: no
+
+user_users_add:
+
+# example with all possibilities ?
+
+  - name            : deploy
+    append          : true          # optional, append groups in groups var
+    comment         : "User 1's Account" # optional
+#    expires         : "" # optional
+#    force           : "" # optional
+#    group           : user1 # optional (only works if group allready created
+    groups          : 'admin, sudo'  # optional
+#    home            : "" # optional
+#    createhome      : "" # optional
+#    password        : "" # optional
+#    update_password : "" # optional
+#    shell           : "" # optional
+    state           : present # default == user_state
+#    ssh_key         :  # default == user_state
+    sudoers          : true  # optional
+    system          : false # default user_system
+    uid             : 809 # optional
+
+  - name            : user2
+    append          : true # optional
+    comment         : "User 1's Account" # optional
+#    expires         : "" # optional
+#    force           : "" # optional
+#    group           : user1 # optional (only works if group allready created
+    groups          : 'admin, sudo'  # optional
+#    home            : "" # optional
+#    createhome      : "" # optional
+#    password        : "" # optional
+#    update_password : "" # optional
+#    shell           : "" # optional
+    state           : present # default == user_state
+#    ssh_key         :  # default == user_state
+    sudoers          : true  # optional
+    system           : false # default user_system
+    uid              : 9999 # optional
+
+user_users_removed:
+
+  - name    : user1
+    state   : absent
+    remove  : yes
+
+  - name    : user2
+    state   : absent
+    remove  : yes
+
