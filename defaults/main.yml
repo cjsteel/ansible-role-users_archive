@@ -42,43 +42,50 @@ user_system: no
 
 user_users_add:
 
-# example with all possibilities ?
+##  all possibilities options
+#
+#  - name            : deploy            # required - name of user.
+#    append          : true              # optional - append groups.
+#    comment         : "deployment acct  # optional - description (GECOS) of user account.
+#    createhome      : ""                # defaults to 'yes'
+#    expires         : ""                # optional - expiry time for the user in epoch
+#    force           : ""                # optional - `userdel --force`, used with state=absent
+#    generate_ssh_key: 'no'              # defaults to 'no' - will not overwrite an existing SSH key
+#    group           : user1             # optional -  sets the user's primary group
+#    groups          : 'admin, sudo'     # optional - When set empty string ('groups='), user removed 
+#                                                     from all groups except primary group.#
+#    home            : /home/deploy      # optional - sets users home directory
+#    move_home       : no                # optional - when yes and used with home= attempts to move
+#                                                     the user's home directory to specified directory
+#                                                     if it has not already been moved.
+#    non_unique      : no                # optional -  defaults to no - used with the -u option, allows
+#                                                      change of user ID to a non-unique value.
+#    password        : ""                # optional - set the user's password to this crypted value*.
+# for details see: http://docs.ansible.com/ansible/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module
+#    remove          : no		 # optional. defaults to no - same as `userdel --remove` when
+#                                                                     used with `stat=absent`
+#    seuser          :                   # optional - sets the seuser type (user_u) on selinux enabled system
+#    shell           : ""                # optional - default : /bin/bash, before 2.6 /usr/bin/false on OS X.
+#    skeleton        :                   # optional - when used with create_home sets a home skel dir
+#    ssh_key_bits      :                   #
+#    ssh_key_comment   :                   # 
+#    ssh_key_file      :                   # default == user_state
+#    ssh_key_passphrase:                   # optional - if no passphrase provided defaults to none
+#    ssh_key_type      :                   # defaults to rsa
+#    state           : present           # default to present
+#    system          : false             # default user_system
+#    uid             : 809               # optional
+#    update_password : ""                # optional
 
-  - name            : deploy
-    append          : true          # optional, append groups in groups var
-    comment         : "User 1's Account" # optional
-#    expires         : "" # optional
-#    force           : "" # optional
-#    group           : user1 # optional (only works if group allready created
-    groups          : 'admin, sudo'  # optional
-#    home            : "" # optional
-#    createhome      : "" # optional
-#    password        : "" # optional
-#    update_password : "" # optional
-#    shell           : "" # optional
-    state           : present # default == user_state
-#    ssh_key         :  # default == user_state
-    sudoers          : true  # optional
-    system          : false # default user_system
-    uid             : 809 # optional
 
   - name            : user2
-    append          : true # optional
-    comment         : "User 1's Account" # optional
-#    expires         : "" # optional
-#    force           : "" # optional
-#    group           : user1 # optional (only works if group allready created
-    groups          : 'admin, sudo'  # optional
-#    home            : "" # optional
-#    createhome      : "" # optional
-#    password        : "" # optional
-#    update_password : "" # optional
-#    shell           : "" # optional
-    state           : present # default == user_state
-#    ssh_key         :  # default == user_state
-    sudoers          : true  # optional
-    system           : false # default user_system
-    uid              : 9999 # optional
+    append          : true
+    comment         : "user2 acct"
+    groups          : 'admin, sudo'
+    state           : present
+    sudoers          : true
+    system           : false
+    uid              : 9999
 
 user_users_removed:
 
