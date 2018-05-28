@@ -1,0 +1,23 @@
+--- # roles/firewall/tests/vagrant_pre_tasks.yml
+
+# set some facts about our controller, project and role
+
+- set_fact: fact_controller_user="{{ lookup('env','USER') }}"
+- debug: var=fact_controller_user
+
+- set_fact: fact_controller_home="{{ lookup('env','HOME') }}"
+- debug: var=fact_controller_home
+
+- set_fact: fact_projects_parent="{{ lookup('pipe','cd ../../../ && pwd')|dirname }}"
+- debug: var=fact_projects_parent
+
+- set_fact: fact_project_path="{{ lookup('pipe','cd ../../ && pwd')|dirname }}"
+- debug: var=fact_project_path
+
+- set_fact: fact_role_path="{{ lookup('pipe','pwd')|dirname }}"
+- debug: var=fact_role_path
+
+- set_fact: fact_role_name="{{ lookup('pipe','pwd')|dirname|basename }}"
+- debug: var=fact_role_name
+
+

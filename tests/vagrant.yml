@@ -4,9 +4,11 @@
   gather_facts: false
   pre_tasks:
 
-    - name: "Set projects variables and ensure desired python(s) installed on nodes"
-      import_tasks: vagrant_pre_tasks.yml
+    - name: "Set some facts about our controller, project and role"
+      import_tasks: vagrant_set_facts_for_controller_project_and_role.yml
 
+    - name: "Ensure targeted nodes have python 2.7x"
+      import_tasks: vagrant_ensure_for_python2.7.yml
 
 - hosts: all
   remote_user: ubuntu

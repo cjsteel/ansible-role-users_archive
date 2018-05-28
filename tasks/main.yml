@@ -5,13 +5,13 @@
     name: libuser
     state: present
 
-- name: "Ensure anu new groups are created"
+- name: "Ensure any new groups are created"
   group:
-    gid   : "{{ item.uid | default(omit) }}"
+    gid   : "{{ item.gid | default(omit) }}"
     name  : "{{ item.name }}"
     state : "{{ item.state | default(omit) }}"
     system: "{{ item.system | default(omit) }}"
-  with_items: "{{ user_groups_add }}"
+  with_items: "{{ users_groups_added }}"
 
 - name: Create Users
   user:
@@ -26,32 +26,37 @@
     name           : "{{ item.name }}"
     password       : "{{ item.password | default(omit) }}"
     shell          : "{{ item.shell | default(omit) }}"
+    ssh_key_bits   : "{{ item.ssh_key_bits | default(omit) }}"
+    ssh_key_comment: "{{ item.ssh_key_comment | default(omit) }}"
+    ssh_key_file   : "{{ item.ssh_key_file | default(omit) }}"
+    ssh_key_passphrase: "{{ item.ssh_key_passphrase | default(omit) }}"
     state          : "{{ item.state | default(omit) }}"
-    system         : "{{ item.system }}"
+    system         : "{{ item.system | default(omit) }}"
     uid            : "{{ item.uid | default(omit) }}"
     update_password: "{{ item.update_password | default(omit) }}"
-  with_items: "{{ user_users_add }}"
+  with_items: "{{ users_users_added }}"
 
 #- name: "add authorized key(s)" 
 #  authorized_key:
 #    user: "{{ item.name }}"
 #    key: "{{ item.ssh_key }}"
 #  when: item.ssh_key is defined
-#  with_items: "{{ user_users_add }}"
+#  with_items: "{{ users_groups_added }}"
 
-- name: Ensure for sudo
+- name: "Ensure sudo installed on target"
   package:
     name    : sudo
     state   : present
+  when: users_ensure_sudo_installed is defined and users_ensure_sudo_installed == true
 
-- name: Add users sudo permissions to sudoers.d user file
+- name: "Add passwordless sudoers.d file for one or more users"
   copy:
     content: "{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
     dest   : "/etc/sudoers.d/{{ item.name }}"
     owner  : root
     group  : root
-  when: item.sudoers is defined and item.sudoers == true
-  with_items: "{{ user_users_add }}"
+    mode   : 0440
+  with_items: "{{ users_users_added }}"
 
 # If sudoers is not defined or equals false then make sure the sudoers file is absent
 
@@ -59,23 +64,27 @@
   file:
     path : "/etc/sudoers.d/{{ item.name }}"
     state: absent
-  when: item.sudoers is undefined or item.sudoers == false
-  with_items: "{{ user_users_add }}"
+  with_items: "{{ users_users_removed }}"
 
 # Remove users
 
 - name: Ensure that users listed in user_users_removed are not present on the system
   user:
-    name  : '{{ item.name }}'
-    state : absent
-    remove: yes
-#  no_log: true
-  with_items: "{{ user_users_removed }}"
+    name      : '{{ item.name }}'
+    group     : "{{ item.group | default(omit) }}"
+    groups    : "{{ item.groups | default(omit) }}"
+    home      : "{{ item.home | default(omit) }}"
+    move_home : "{{ item.move_home | default(omit) }}"
+    state     : absent
+    remove    : yes
+    system    : "{{ item.system | default(omit) }}"
+    uid       : "{{ item.uid | default(omit) }}"
+  with_items: "{{ users_users_removed }}"
 
 - name: "Ensure any groups in the user_groups_removed list are not present on the system"
   group:
     name  : "{{ item.name }}"
     state : absent
 #  no_log: true
-  with_items: '{{ user_groups_removed }}'
+  with_items: '{{ users_groups_removed }}'
 

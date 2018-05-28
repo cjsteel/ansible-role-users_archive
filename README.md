@@ -35,11 +35,8 @@ Example Playbook
           - name: user02
             sudoers: false
             ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCsizUbyTe...w== your_email@example.com
-          - name: user03
-            sudoers: true
-            system: yes
-          - name: user04
-            state: absent
+    #       ssh_key: "{{lookup('file', '$HOME/.ssh/id_rsa.pub')}}"        
+    
       roles:
         - ansible-role-user
 
